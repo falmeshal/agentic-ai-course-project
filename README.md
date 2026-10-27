@@ -4,7 +4,7 @@
 
 **Track:** 3 · Graph workflow
 **Team:** Faisal ([@falmeshal](https://github.com/falmeshal))
-**Model(s):** `google/gemma-4-31b-it:free` via OpenRouter (the course default, with tool calling). _To be confirmed by the configuration A run._
+**Model(s):** `nvidia/nemotron-3.5-super-vl:free` via OpenRouter. It's free, supports tool calling, and passed our Arabic and English refund tasks in a model comparison. Fallbacks are `nvidia/nemotron-3.5-lightning:free` and `google/gemma-4-31b-it:free`.
 
 > **Status:** planning. The sections marked _planned_ describe what will be built. The results tables are filled in after the eval run.
 
@@ -36,7 +36,8 @@ uv run istirdad.py eval tasks.jsonl --config A
 ```
 
 - The first run builds the synthetic Madar database (`data/madar.sqlite`) and installs the dependencies.
-- Every model call goes to OpenRouter. The default model is `google/gemma-4-31b-it:free`; set `AGENT_MODEL` in `.env` to use another one.
+- Every model call goes to OpenRouter. To use another model with tool calling, set `AGENT_MODEL` in `.env`.
+- Free models are rate-limited (error 429). If that happens, wait a minute, or add 10 credits on OpenRouter to raise the daily limit.
 - Eval results are written to `eval_A.csv` (and `eval_B.csv` once the graph exists).
 
 ## Design across the ladder _(planned)_

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -29,8 +30,16 @@ import madar  # noqa: E402
 
 OUT = K.lab_dir("istirdad")
 
+# Free OpenRouter models with tool calling that passed our Arabic and English refund tasks (checked 27 Oct 2026).
+# Override in .env with AGENT_MODEL / AGENT_FALLBACKS; free lists change every few weeks.
+K.MODEL = os.getenv("AGENT_MODEL") or "nvidia/nemotron-3.5-super-vl:free"
+K.FALLBACKS = [m for m in os.getenv("AGENT_FALLBACKS", "nvidia/nemotron-3.5-lightning:free,google/gemma-4-31b-it:free").split(",") if m]
+
 SKILL = (ROOT / "data" / "skills" / "refund-request" / "SKILL.md").read_text(encoding="utf-8")
-SPEC = madar.SYSTEM_PROMPT + "\n\n" + SKILL  # ponytail: replaced by AGENTS.md when the graph lands
+CONFIRM_RULE = ("Confirmation is enforced by the harness: every write tool pauses for the person's approval before it "
+                "runs. When the person has asked for a refund and said they confirm, call create_refund directly instead "
+                "of asking again in chat; then tell them the amount and what happens next.")
+SPEC = madar.SYSTEM_PROMPT + "\n\n" + SKILL + "\n\n" + CONFIRM_RULE  # ponytail: becomes AGENTS.md when the graph lands
 
 CONFIGS = {
     "A": {"system": SPEC, "model": None},  # model None = K.MODEL (AGENT_MODEL in .env, default a free OpenRouter model)
