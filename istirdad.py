@@ -86,6 +86,7 @@ def main() -> int:
     args = ap.parse_args()
 
     print(f"provider={K.PROVIDER} model={K.MODEL}")
+    madar.Madar()  # build the database here on a fresh clone: in the MCP server, the build's print would corrupt stdio
     with K.MCPBridge(mcp_server()) as mcp:
         if args.cmd == "ask":
             run = make_agent(CONFIGS["A"], mcp)(args.question, madar.Madar(OUT / "db"), verbose=True)
