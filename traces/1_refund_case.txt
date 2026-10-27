@@ -1,0 +1,40 @@
+$ uv run istirdad.py ask --fresh "My sign permit SGN-40220 was rejected, I want my fee back. I confirm. ID ends 0093, mobile 0540410093."
+provider=openrouter model=anthropic/claude-sonnet-5.5
+▶ intake        {"intake": {"permit_id": "SGN-40220", "national_id_last4": "0093", "mobile": "0540410093", "wants": "refund", "language": "en"}}
+▶ verify        {"permit": {"permit_id": "SGN-40220", "type": "SGN", "status": "rejected", "applicant": "Omar Al-Ghamdi", "national_id": "******0093", "district": "Al-Olaya", "details": {"sign_m2": 14, "illuminated": false, "shop": "Ghamdi Trading"}, "fee_sar": 2800, "submitted": "2026-10-01", "sla_working_days": 1
+▶ decide        {"reason": "rejected", "amount": 2700, "outcome": ""}
+
+🛡️  Allow create_refund({"permit_id": "SGN-40220", "reason": "rejected", "national_id_last4": "0093", "mobile": "0540410093", "amount_sar": 2700})? [y/N] ▶ create        {"refund": {"refund_id": "REF-5001", "permit_id": "SGN-40220", "amount_sar": 2700, "status": "pending_approval", "note": "needs a finance officer's approval (POL-06)"}, "outcome": "created"}
+▶ reply         {"reply": "Dear Mr. Al-Ghamdi,\n\nYour refund request has been created for rejected permit SGN-40220.\n\n- Refund ID: REF-5001\n- Amount: 2,700 SAR (the 2,800 SAR fee minus a 100 SAR processing charge)\n- Status: pending approval\n\nBecause the amount is above 1,000 SAR, a finance officer must appro
+▶ notify        {}
+▶ __interrupt__ {"refund_id": "REF-5001", "permit_id": "SGN-40220", "amount_sar": 2700, "reason": "rejected"}
+
+Dear Mr. Al-Ghamdi,
+
+Your refund request has been created for rejected permit SGN-40220.
+
+- Refund ID: REF-5001
+- Amount: 2,700 SAR (the 2,800 SAR fee minus a 100 SAR processing charge)
+- Status: pending approval
+
+Because the amount is above 1,000 SAR, a finance officer must approve it before it is paid. Once approved, the refund goes to your original payment method within 10 working days.
+
+Instead of a refund, you may also appeal the rejection within 30 calendar days. Your appeal deadline is 2026-11-07.
+
+Kind regards,
+Istirdad, Madar Municipal Services
+
+⏸  case-7123dddb is waiting for a finance officer: REF-5001, 2700 SAR. Resume it (even after a restart) with:
+   uv run istirdad.py finance case-7123dddb approve
+
+# --- a new process: the finance officer resumes the saved case ---
+$ uv run istirdad.py finance case-7123dddb approve
+provider=openrouter model=anthropic/claude-sonnet-5.5
+▶ finance_gate  {"refund": {"refund_id": "REF-5001", "permit_id": "SGN-40220", "amount_sar": 2700, "status": "approved", "note": "needs a finance officer's approval (POL-06)"}}
+
+case-7123dddb: refund approved, applicant notified.
+
+$ sqlite3 artifacts/istirdad/db/madar.sqlite "SELECT refund_id, amount_sar, status FROM refunds; SELECT to_addr, subject FROM outbox;"
+REF-5001|2700|approved
+omar@ghamdi-trading.example|Refund REF-5001
+omar@ghamdi-trading.example|Refund REF-5001: approved

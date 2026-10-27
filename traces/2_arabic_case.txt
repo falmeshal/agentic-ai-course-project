@@ -1,0 +1,22 @@
+$ uv run istirdad.py ask --fresh "أرغب في سحب طلب الترميم REN-10482 لأنه ما زال قيد المراجعة، وأريد استرداد ما يحق لي من الرسوم. أؤكد الطلب. آخر أرقام الهوية 4821 والجوال 0501234821."
+provider=openrouter model=anthropic/claude-sonnet-5.5
+▶ intake        {"intake": {"permit_id": "REN-10482", "national_id_last4": "4821", "mobile": "0501234821", "wants": "refund", "language": "ar"}}
+▶ verify        {"permit": {"permit_id": "REN-10482", "type": "REN", "status": "under_review", "applicant": "Sara Al-Qahtani", "national_id": "******4821", "district": "Al-Rawdah", "details": {"area_m2": 35, "structural": true, "description": "replace two load-bearing walls in the kitchen"}, "fee_sar": 335, "submit
+▶ decide        {"reason": "withdrawn_during_review", "amount": 167, "outcome": ""}
+
+🛡️  Allow create_refund({"permit_id": "REN-10482", "reason": "withdrawn_during_review", "national_id_last4": "4821", "mobile": "0501234821", "amount_sar": 167})? [y/N] ▶ create        {"refund": {"refund_id": "REF-5001", "permit_id": "REN-10482", "amount_sar": 167, "status": "approved", "note": "paid within 10 working days"}, "outcome": "created"}
+▶ reply         {"reply": "السيدة سارة القحطاني، المحترمة،\n\nتم إنشاء طلب استرداد لرسوم تصريحكم رقم REN-10482 بعد سحب الطلب أثناء المراجعة.\n\n- رقم طلب الاسترداد: REF-5001\n- المبلغ: 167 ريال سعودي (50% من الرسوم البالغة 335 ريالًا)\n- الحالة: معتمد\n\nولأن المبلغ لا يتجاوز 1,000 ريال، سيُدفع تلقائيًا إلى وسيلة ا
+▶ notify        {}
+
+السيدة سارة القحطاني، المحترمة،
+
+تم إنشاء طلب استرداد لرسوم تصريحكم رقم REN-10482 بعد سحب الطلب أثناء المراجعة.
+
+- رقم طلب الاسترداد: REF-5001
+- المبلغ: 167 ريال سعودي (50% من الرسوم البالغة 335 ريالًا)
+- الحالة: معتمد
+
+ولأن المبلغ لا يتجاوز 1,000 ريال، سيُدفع تلقائيًا إلى وسيلة الدفع الأصلية خلال 10 أيام عمل.
+
+مع خالص التحية،
+استرداد – خدمات بلدية مدار
