@@ -12,7 +12,7 @@
     uv run istirdad.py eval tasks.jsonl --config A-open A --category security   # the attack, before and after the defence
 
 Configurations:
-    A       one agent loop (the course capstone starter) with the refund skill; email only via notify_applicant
+    A       one agent loop (the course starter loop) with the refund skill; email only via notify_applicant
     A-open  the same loop with the course's open send_email(to, ...) instead: the undefended baseline for the attack
     B       the Istirdad graph: the model reads the message and writes the reply; code verifies, decides and writes
 """
@@ -101,6 +101,7 @@ def make_notify(m: madar.Madar):
 
 
 def mcp_server() -> StdioServerParameters:
+    madar.Madar()  # build the database first on a fresh clone: in the server, the build's print would corrupt stdio
     return StdioServerParameters(command="uv", args=["run", "--quiet", str(ROOT / "servers" / "madar_mcp.py")])
 
 
@@ -367,7 +368,6 @@ def main() -> int:
     args = ap.parse_args()
 
     print(f"provider={K.PROVIDER} model={K.MODEL}")
-    madar.Madar()  # build the database here on a fresh clone: in the MCP server, the build's print would corrupt stdio
     with K.MCPBridge(mcp_server()) as mcp:
         if args.cmd == "ask" and args.config != "B":
             run = make_loop(args.config == "A-open", mcp)(args.message, case_db(args.fresh), verbose=True)
@@ -395,9 +395,12 @@ def main() -> int:
             tasks = evals.load_tasks(args.tasks, categories=args.category)
             for c in args.config:
                 agent = make_graph_agent(mcp, consent) if c == "B" else make_loop(c == "A-open", mcp, consent)
+                tokens = K.LEDGER.input_tokens + K.LEDGER.output_tokens
                 df = evals.run_suite(agent, tasks, trials=args.trials, name=c)
                 df.drop(columns="final").to_csv(ROOT / f"eval_{c}.csv", index=False)
-                print(f"\n{c}:", evals.report(df)[0].to_string(), "\n")
+                print(f"\n{c}:", evals.report(df)[0].to_string(),
+                      f"\navg model calls per case: {df.steps.mean():.1f}, "
+                      f"avg tokens per case: {(K.LEDGER.input_tokens + K.LEDGER.output_tokens - tokens) / len(df):.0f}\n")
     return 0
 
 
