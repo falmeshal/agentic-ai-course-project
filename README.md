@@ -4,7 +4,7 @@
 
 **Track:** 3 · Graph workflow
 **Team:** Faisal ([@falmeshal](https://github.com/falmeshal))
-**Model(s):** _to be chosen from benchmark evidence and the configuration A run_
+**Model(s):** `google/gemma-4-31b-it:free` via OpenRouter (the course default, with tool calling). _To be confirmed by the configuration A run._
 
 > **Status:** planning. The sections marked _planned_ describe what will be built. The results tables are filled in after the eval run.
 
@@ -25,14 +25,19 @@ Today a municipal officer handles each refund request by hand. They read the mes
 - The citizen gets a correct reply, in their language, at their registered email.
 - Nothing else leaves the system.
 
-## How to run _(planned)_
+## How to run
+
+You need [uv](https://docs.astral.sh/uv/) and an [OpenRouter](https://openrouter.ai/keys) API key.
 
 ```bash
+cp .env.example .env        # then paste your key after OPENROUTER_API_KEY=
 uv run istirdad.py ask "My sign permit SGN-40220 was rejected, I want my fee back. ID ends 0093, mobile 0540410093."
-uv run istirdad.py eval tasks.jsonl --config A B
+uv run istirdad.py eval tasks.jsonl --config A
 ```
 
-Environment: `OPENROUTER_API_KEY` in `.env`.
+- The first run builds the synthetic Madar database (`data/madar.sqlite`) and installs the dependencies.
+- Every model call goes to OpenRouter. The default model is `google/gemma-4-31b-it:free`; set `AGENT_MODEL` in `.env` to use another one.
+- Eval results are written to `eval_A.csv` (and `eval_B.csv` once the graph exists).
 
 ## Design across the ladder _(planned)_
 

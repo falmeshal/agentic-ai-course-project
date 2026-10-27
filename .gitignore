@@ -3,3 +3,6 @@ artifacts/
 __pycache__/
 *.sqlite
 .venv/
+cache/
+data/inbox.jsonl
+*.sqlite-journal
