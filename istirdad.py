@@ -50,6 +50,8 @@ K.FALLBACKS = [m for m in os.getenv("AGENT_FALLBACKS", "nvidia/nemotron-3.5-ligh
 
 MAX_STEPS, MAX_COST, MAX_RESULT_CHARS = 8, 0.05, 3000
 MAX_TOKENS = 1024  # output cap per model call: a reply is under 120 words, and OpenRouter reserves budget for the cap
+# Reasoning off: a reasoning model (e.g. the free Nemotron) otherwise spends the whole cap thinking and returns no text.
+MODEL_KW = {"max_tokens": MAX_TOKENS, "extra_body": {"reasoning": {"enabled": False}}}
 
 
 # ================================================================ shared harness
@@ -132,7 +134,7 @@ def make_loop(open_email: bool, mcp: K.MCPBridge, approve=approve_cli):
         email = m.send_email if open_email else make_notify(m)
         return K.run_agent(prompt, [m.create_refund, email] + mcp.agent_tools(), system=SPEC, max_steps=MAX_STEPS,
                            max_cost=MAX_COST, permission=permission, approve=approve, after_tool=cap_result,
-                           verbose=kw.pop("verbose", False), max_tokens=MAX_TOKENS, **kw)
+                           verbose=kw.pop("verbose", False), **MODEL_KW, **kw)
     return agent
 
 
@@ -177,12 +179,12 @@ class Case(TypedDict, total=False):
 
 
 def llm_json(message: str, schema: type[BaseModel], system: str) -> BaseModel:
-    return K.structured(message, schema, system=system, max_tokens=MAX_TOKENS)
+    return K.structured(message, schema, system=system, **MODEL_KW)
 
 
 def llm_text(system: str, user: str) -> str:
     return K.text_of(K.chat([{"role": "system", "content": system}, {"role": "user", "content": user}],
-                            max_tokens=MAX_TOKENS))
+                            **MODEL_KW))
 
 
 def refund_rule(permit: dict, paid: list[int]) -> tuple[str, int] | str:
